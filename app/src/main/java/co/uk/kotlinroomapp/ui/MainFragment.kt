@@ -1,12 +1,12 @@
 package co.uk.kotlinroomapp.ui
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import co.uk.kotlinroomapp.data.api.ApiHelperImpl
 import co.uk.kotlinroomapp.data.api.RetrofitBuilder
@@ -49,7 +49,7 @@ class MainFragment : Fragment() {
         viewModel.snackbar.observe(viewLifecycleOwner) { text ->
             text?.let {
                 Snackbar.make(binding.root, text, Snackbar.LENGTH_LONG).show()
-                viewModel.onSnackbarShown()
+                viewModel.onSnackBarShown()
             }
         }
 
@@ -77,23 +77,26 @@ class MainFragment : Fragment() {
         val adapter = TaskAdapter()
         binding.taskList.adapter = adapter
 
-        viewModel.tasks.observe(viewLifecycleOwner, Observer {
+        viewModel.tasks.observe(viewLifecycleOwner, {
             when (it.status) {
                 Status.LOADING -> {
                     // Make some more loading animations here
+                    Log.d("MainFragment", "Loading data")
                 }
                 Status.SUCCESS -> {
+                    Log.d("MainFragment", "Data updated ${it.data?.size}")
                     adapter.submitList(it.data)
                 }
                 Status.ERROR -> {
+                    Log.d("MainFragment", "Error ${it.message}")
                     // Do some more error handling here
                 }
             }
         })
 
         // Need to have this observer here as it will be managed by this fragments lifecycle
-        InternetUtil.observe(viewLifecycleOwner, { isConnected ->
-            viewModel.reFetchData(isConnected)
+        InternetUtil.observe(this, { isConnected ->
+            viewModel.isConnected.postValue(isConnected)
         })
 
         return binding.root

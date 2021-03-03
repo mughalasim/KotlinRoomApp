@@ -5,11 +5,13 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkRequest
+import android.util.Log
 import androidx.lifecycle.LiveData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.lang.Exception
 
 object InternetUtil : LiveData<Boolean>() {
 
@@ -24,7 +26,7 @@ object InternetUtil : LiveData<Boolean>() {
     }
 
     override fun onInactive() {
-       stopNetworkCallback()
+        stopNetworkCallback()
     }
 
     private fun startNetworkCallback() {
@@ -45,7 +47,11 @@ object InternetUtil : LiveData<Boolean>() {
     private fun stopNetworkCallback() {
         val cm: ConnectivityManager =
             application.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        cm.unregisterNetworkCallback(ConnectivityManager.NetworkCallback())
+        try {
+            cm.unregisterNetworkCallback(ConnectivityManager.NetworkCallback())
+        } catch (error: Exception) {
+            Log.e("InternetUtil", error.toString())
+        }
     }
 
     private val networkCallback = object : ConnectivityManager.NetworkCallback() {

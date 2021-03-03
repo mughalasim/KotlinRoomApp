@@ -7,6 +7,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.ActivityTestRule
 import co.uk.kotlinroomapp.utils.CustomMatchers.Companion.withItemCount
 import co.uk.kotlinroomapp.R
+import co.uk.kotlinroomapp.utils.CustomAssertions.Companion.hasItemCount
 import junit.framework.TestCase
 import org.junit.Rule
 import org.junit.Test
@@ -24,6 +25,13 @@ class MainFragmentTest : TestCase() {
     fun checkItemListCount() {
         onView(withId(R.id.task_list))
             .check(matches(withItemCount(6)))
+    }
+
+    // Is a View Assertion: This will check if the view is a recycler with an attached adapter then count its children
+    @Test
+    fun checkItemListHas6Items() {
+        onView(withId(R.id.task_list))
+            .check(hasItemCount(6))
     }
 }
 

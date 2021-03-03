@@ -9,6 +9,4 @@ data class TaskEntity(
     val name: String,
     val description: String,
     val type: String
-) {
-    override fun toString() = name
-}
+)

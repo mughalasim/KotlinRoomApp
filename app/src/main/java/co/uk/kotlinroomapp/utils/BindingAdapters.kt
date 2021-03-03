@@ -1,4 +1,4 @@
-package co.uk.kotlinroomapp.ui
+package co.uk.kotlinroomapp.utils
 
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
