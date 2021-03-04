@@ -97,6 +97,7 @@ class MainFragment : Fragment() {
         // Need to have this observer here as it will be managed by this fragments lifecycle
         InternetUtil.observe(this, { isConnected ->
             viewModel.isConnected.postValue(isConnected)
+            viewModel.fetchData()
         })
 
         return binding.root

@@ -5,9 +5,9 @@ import androidx.databinding.BindingAdapter
 import co.uk.kotlinroomapp.R
 
 @BindingAdapter("imageFromType")
-fun bindImageFromType(view: ImageView, imageUrl: String?) {
-    if (!imageUrl.isNullOrEmpty()) {
-        view.setImageResource (when(imageUrl){
+fun bindImageFromType(view: ImageView, taskType: String?) {
+    if (!taskType.isNullOrEmpty()) {
+        view.setImageResource (when(taskType){
             "general" -> R.drawable.general
             "hydration" -> R.drawable.hydration
             "medication" -> R.drawable.medication

@@ -19,18 +19,17 @@ class MainFragmentViewModel internal constructor(
     private val dbHelper: DatabaseHelper
 ) : ViewModel() {
 
+    private val TAG = "ViewModel"
     private val _snackbar = MutableLiveData<String?>()
     private val _spinner = MutableLiveData(false)
     val spinner: LiveData<Boolean> get() = _spinner
     val snackbar: LiveData<String?> get() = _snackbar
     val isConnected = MutableLiveData(false) // Is assuming offline first
+    var localDataCount: Int = 0 // There is no data in the local store to begin with so attempt to fetch from server
 
     val tasks = MutableLiveData<Resource<List<TaskEntity>>>()
     private var taskTypeList: ArrayList<String> = arrayListOf()
 
-    init {
-        fetchData()
-    }
 
     // Clear the snack bar immediately after its shown
     fun onSnackBarShown() {
@@ -43,11 +42,11 @@ class MainFragmentViewModel internal constructor(
         } else {
             taskTypeList.remove(taskType)
         }
-        Log.d("List of applied filters", taskTypeList.toString())
+        Log.d(TAG, "List of applied filters $taskTypeList")
         fetchData()
     }
 
-    private fun fetchData() {
+    fun fetchData() {
         viewModelScope.launch {
             tasks.postValue(Resource.loading(null))
             _spinner.value = true
@@ -61,27 +60,29 @@ class MainFragmentViewModel internal constructor(
     }
 
     private suspend fun tryUpdateRecentTasksCache(taskTypes: List<String>) {
+        /*
+        First check if there is no local storage and there is internet available then start
+        fetching from the server..
+        Possible idea - If the individual items in the list were updated, have a state property
+        with each item that then returns a count of how many times need to be updated from the server
+        */
+        if (localDataCount == 0 && isConnected.value == true) {
+            dbHelper.insertAll(apiHelper.getTasks())
+            tasks.postValue(Resource.success(dbHelper.getTasks()))
+            updateLocalDataCount()
+        }
+
+        // If a filter has been applied then use the local storage to sort it
         if (taskTypes.isEmpty()) {
             tasks.postValue(Resource.success(dbHelper.getTasks()))
         } else {
-            fetchFilteredTaskFromDB(taskTypes)
+            tasks.postValue(Resource.success(dbHelper.getFilteredTaskList(taskTypes)))
         }
-
-        // Obviously this is not ideal, we would check the state of the data if it has changed and mark it as such
-        // ie dirty state, needs to be uploaded or pulled down etc
-        if (dbHelper.getRowCount() == 0 && isConnected.value == true) {
-            refreshTasksFromNetwork()
-        }
-
         _spinner.value = false
     }
 
-    private suspend fun refreshTasksFromNetwork() {
-        dbHelper.insertAll(apiHelper.getTasks())
-        tasks.postValue(Resource.success(dbHelper.getTasks()))
-    }
-
-    private suspend fun fetchFilteredTaskFromDB(taskTypes: List<String>) {
-        tasks.postValue(Resource.success(dbHelper.getFilteredTaskList(taskTypes)))
+    private suspend fun updateLocalDataCount(){
+        localDataCount = dbHelper.getRowCount()
+        Log.d(TAG, "Local Database item count: $localDataCount")
     }
 }

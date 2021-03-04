@@ -2,10 +2,14 @@ package co.uk.kotlinroomapp.network
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
+import co.uk.kotlinroomapp.AppContext
 import co.uk.kotlinroomapp.data.api.ApiHelper
+import co.uk.kotlinroomapp.data.local.DatabaseBuilder
 import co.uk.kotlinroomapp.data.local.DatabaseHelper
+import co.uk.kotlinroomapp.data.local.DatabaseHelperImpl
 import co.uk.kotlinroomapp.data.local.entity.TaskEntity
 import co.uk.kotlinroomapp.ui.MainFragmentViewModel
+import co.uk.kotlinroomapp.utils.KotlinRoomApp
 import co.uk.kotlinroomapp.utils.Resource
 import co.uk.kotlinroomapp.utils.TestCoroutineRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -44,9 +48,9 @@ class MainFragmentViewModelTest {
     }
 
     @Test
-    fun whenDatabaseIsEmpty_shouldReturnError() {
+    fun givenDatabaseNotInitialized_whenFetch_shouldReturnError() {
         testCoroutineRule.runBlockingTest {
-            val errorMessage = "Error Database is empty"
+            val errorMessage = "Error Database was not initialized"
             doThrow(RuntimeException(errorMessage))
                 .`when`(databaseHelper)
                 .getRowCount()
