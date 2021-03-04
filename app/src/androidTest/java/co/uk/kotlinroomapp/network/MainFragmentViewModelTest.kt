@@ -44,15 +44,21 @@ class MainFragmentViewModelTest {
     }
 
     @Test
-    fun givenServerResponse200_whenFetch_shouldReturnSuccess() {
+    fun whenDatabaseIsEmpty_shouldReturnError() {
         testCoroutineRule.runBlockingTest {
-            doReturn(emptyList<TaskEntity>())
-                .`when`(apiHelper)
-                .getTasks()
+            val errorMessage = "Error Database is empty"
+            doThrow(RuntimeException(errorMessage))
+                .`when`(databaseHelper)
+                .getRowCount()
             val viewModel = MainFragmentViewModel(apiHelper, databaseHelper)
             viewModel.tasks.observeForever(listObserver)
-            verify(apiHelper).getTasks()
-            verify(listObserver).onChanged(Resource.success(emptyList()))
+            verify(databaseHelper).getRowCount()
+            verify(listObserver).onChanged(
+                Resource.error(
+                    RuntimeException(errorMessage).toString(),
+                    null
+                )
+            )
             viewModel.tasks.removeObserver(listObserver)
         }
     }

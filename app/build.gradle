@@ -46,8 +46,7 @@ dependencies {
     implementation libraries
     implementation arch_libraries
     kapt librariesKapt
-    // For local unit tests
+    // Testing
     testImplementation testLibraries
-    // For instrumented tests
     androidTestImplementation androidTestLibraries
 }
